@@ -1,0 +1,17 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\mega"
+  },
+  {
+    "Sourcefile": "c:\\Users\\dawid\\Desktop\\Manipulator\\Software\\first\\build\\sketch\\first.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]
