@@ -1,17 +1,9 @@
-#include "stepper.h"
-#include "states.h"
-#include "servo.h"
 #include "interpreter.h"
 #include <string.h>
 
 #define DELIM " \t\r\n\a"
 #define BUFFER 32
-//axis one (X) -> 0
-//axis two (Y) -> 1
-//axis three (Z) -> 2
-//axis four (E0) -> 3
-//axis five (E1) -> 4
-//G0 G1 G2 G3 G4 G5 M-ileś zmiana prędkości przegubów
+
 void printSetup()
 {
   Serial.println("Moving robotic arm by pseudoGCode");
@@ -42,6 +34,7 @@ char **parse(String str){
         exit(EXIT_FAILURE);
       }
     }
+    //end of reallocation, error handling done
     token = strtok(NULL, DELIM);
   }
   tokens[position] = NULL;
@@ -56,15 +49,22 @@ void interpreter(){
 
         tokensCommand=Parse(Serial.readString())
 
-        if(*tokensCommand[0]="G0")
-          
-        else if(*tokensCommand[0]="G2")
-
-        else if(*tokensCommand[0]="G3")
-
-        else if(*tokensCommand[0]="G4")
-
-        else if(*tokensCommand[0]="G5")
+        switch(*tokensCommand[0]){
+          case "G0":
+            //TODO
+          case "G1":
+            //TODO
+          case "G2":
+            //TODO
+          case "G3":
+            //TODO
+          case "G4":
+            //TODO
+          case "G5":
+            //TODO
+          default:
+            Serial.println("Command not supported or not valid");
+        }
 
     }
 }
