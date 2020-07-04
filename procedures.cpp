@@ -10,7 +10,7 @@ void procedureG2(char **commands){
 //mov2(int axis1,int pos1,int axis2,int pos2);
 }
 void procedureG3(char **commands){
-
+//mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3);
 }
 void procedureG4(char **commands){
 
