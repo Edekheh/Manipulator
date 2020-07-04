@@ -1,4 +1,5 @@
-/*#include "servo.h"
+#include "servo.h"
+#include "pins.h"
 Servo Servo1;
 
 void InitializeServos() {
@@ -31,4 +32,4 @@ while(1)    {
     servo.write(finalDeg);
 }
 Serial.println(millis());
-}*/
+}

@@ -1,5 +1,9 @@
-/*#include "stepper.h"
+#include "stepper.h"
+#include "pins.h"
 //stepper motor controlls
+int STEP_PINS[5]={X_STEP_PIN,Y_STEP_PIN,Z_STEP_PIN,E0_STEP_PIN,E1_STEP_PIN};
+int DIR_PINS[5]={X_DIR_PIN,Y_DIR_PIN,Z_DIR_PIN,E0_DIR_PIN,E1_DIR_PIN};
+int ENABLE_PINS[5];
 int AXIS_STEPS_PER_REV[5] = {3200,3200,3200,3200,3200};//microstepps
 float AXIS_MAX_REV[5] = {5, 3.2, 9, 1, 1.8};
 int AXIS_POS[5] = {90, 90, 90, 180, 90};
@@ -31,4 +35,3 @@ void mov1(int axis,int pos) {
     }
     AXIS_POS[axis]=pos;
 }
-*/

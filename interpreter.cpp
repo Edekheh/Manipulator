@@ -44,7 +44,7 @@ int interpreter(char input[]){
     if(tokens[0]=="G0"){
       procedureG0(tokens);
     }else{
-      Serial.println("Invalid or not supported command");
+      //TODO
     }
     return 0;
 }
