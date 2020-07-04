@@ -20,7 +20,7 @@ int translateServoDeg(int deg) {
     return finalValue;
 }
 
-void movServo(Servo servo,int deg)    {
+void movServo(int deg)    {
 int finalDeg=translateServoDeg(deg);    
 unsigned long startMilSec = millis();
 Serial.println(startMilSec);
@@ -29,7 +29,8 @@ unsigned long currentMilSec;
 while(1)    {
     currentMilSec=millis();
     if(startMilSec+1000<currentMilSec) break;
-    servo.write(finalDeg);
+    Servo1.write(finalDeg);
 }
+Servo1.write(89);
 Serial.println(millis());
 }
