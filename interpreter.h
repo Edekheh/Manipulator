@@ -1,5 +1,4 @@
 #include "procedures.h"
 
-void printSetup();
-char **parse(String str);
-void interpreter();
+char **parse(char string[]);
+int interpreter(char input[]);

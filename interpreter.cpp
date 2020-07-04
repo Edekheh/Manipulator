@@ -1,70 +1,50 @@
 #include "interpreter.h"
 #include <string.h>
+#include <stdlib.h>
 
 #define DELIM " \t\r\n\a"
-#define BUFFER 32
+#define BUFFER 16
 
-void printSetup()
-{
-  Serial.println("Moving robotic arm by pseudoGCode");
-  Serial.println("G1 - moving command, A B C D E F - axis names, degree from 000 to 180");
-  Serial.println("Example : G1 A32 ;");
-  Serial.println("^^^Moving A axis by 32 degrees^^^");
-}
-char **parse(String str){
+char** parse(char line[]){
 
-  char **tokens = malloc(BUFFER * sizeof(char*));
-  char *token = strtok(str, DELIM);
-  int position = 0;
-  int bufsize = BUFFER;
-  //error handling
+  int bufsize = BUFFER, position = 0;
+  char **tokens = (char**)malloc(bufsize * sizeof(char*));
+  char *token;
+
   if (tokens==NULL) {
-    Serial.println("! ! ! ! ! !\nallocation error\n! ! ! ! ! !\n");
-    exit(EXIT_FAILURE);
+    return NULL;
   }
+  token = strtok(line, DELIM);
   while (token != NULL) {
     tokens[position] = token;
     position++;
-    //does string exceed buffer size ? if yes reallocate
+
     if (position >= bufsize) {
-      bufsize += BUFFER;
-      tokens = realloc(tokens, bufsize * sizeof(char*));
+      bufsize +=  BUFFER;
+      tokens = (char**)realloc(tokens, bufsize * sizeof(char*));
       if (!tokens) {
-        Serial.println("! ! ! ! !\nreallocation error\n! ! ! ! !\n");
-        exit(EXIT_FAILURE);
+        return NULL;
       }
     }
-    //end of reallocation, error handling done
     token = strtok(NULL, DELIM);
   }
   tokens[position] = NULL;
   return tokens;
 }
-void interpreter(){
+
+int interpreter(char input[]){
     
-    char **tokensCommand;
+    char **tokens;
 
-    printSetup();
-    while(1){
+    tokens=parse(input);
 
-        tokensCommand=Parse(Serial.readString())
+    if(tokens==NULL)
+      return -1;
 
-        switch(*tokensCommand[0]){
-          case "G0":
-            //TODO
-          case "G1":
-            //TODO
-          case "G2":
-            //TODO
-          case "G3":
-            //TODO
-          case "G4":
-            //TODO
-          case "G5":
-            //TODO
-          default:
-            Serial.println("Command not supported or not valid");
-        }
-
+    if(tokens[0]=="G0"){
+      procedureG0(tokens);
+    }else{
+      Serial.println("Invalid or not supported command");
     }
+    return 0;
 }
