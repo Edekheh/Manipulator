@@ -46,7 +46,7 @@ void mov0(int axis, int deg)
             digitalWrite(STEP_PINS[axis], LOW);
             delayMicroseconds(AXIS_SPEED[axis]);
         }
-        AXIS_POS[axis]+=deg;
+        AXIS_POS[axis] += deg;
     }
 }
 
@@ -73,4 +73,45 @@ void mov1(int axis, int pos)
         delayMicroseconds(AXIS_SPEED[axis]);
     }
     AXIS_POS[axis] = pos;
+}
+void checkStepTimer(unsigned long lt, unsigned long ct, int axis)
+{
+    if (lt + AXIS_SPEED[axis] > ct)
+    {
+        digitalWrite(STEP_PINS[axis], HIGH);
+        delayMicroseconds(5);
+        digitalWrite(STEP_PINS[axis], LOW);
+    }
+}
+void mov2(int axis1, int pos1, int axis2, int pos2)
+{
+    writeDirPin(axis1, pos1);
+    writeDirPin(axis2, pos2);
+    int numOfStepps1 = abs(pos1 - AXIS_POS[axis1]);
+    numOfStepps1 = AXIS_STEPS_PER_DEGREE[axis1] * numOfStepps1;
+    int numOfStepps2 = abs(pos2 - AXIS_POS[axis2]);
+    numOfStepps2 = AXIS_STEPS_PER_DEGREE[axis2] * numOfStepps2;
+    unsigned long lt1 = millis();
+    unsigned long lt2 = millis();
+    unsigned long ct;
+    digitalWrite(STEP_PINS[axis1], LOW);
+    digitalWrite(STEP_PINS[axis2], LOW);
+    while (max(numOfStepps1, numOfStepps2) > 0)
+    {
+        ct = millis();
+        if (numOfStepps1 > 0)
+        {
+            checkStepTimer(lt1, ct, axis1);
+            numOfStepps1--;
+            ct = millis();
+            lt1 = ct;
+        }
+        if (numOfStepps2 > 0)
+        {
+            checkStepTimer(lt2, ct, axis2);
+            numOfStepps2--;
+            ct = millis();
+            lt2 = ct;
+        }
+    }
 }
