@@ -27,7 +27,6 @@
 #define MOSI_PIN 51
 #define SCK_PIN 52
 #define SS_PIN 53
-
 /*void enableSteppers() {
   digitalWrite(X_ENABLE_PIN,LOW);
   digitalWrite(Y_ENABLE_PIN,LOW);

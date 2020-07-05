@@ -41,10 +41,19 @@ int interpreter(char input[]){
     if(tokens==NULL)
       return -1;
 
-    if(tokens[0]=="G0"){
+    if(tokens[0]=="G0")
       procedureG0(tokens);
-    }else{
-      //TODO
-    }
+    else if(tokens[0]=="G1")
+      procedureG1(tokens);
+    else if(tokens[0]=="G2")
+      procedureG2(tokens);
+    else if(tokens[0]=="G3")
+      procedureG3(tokens);
+    else if(tokens[0]=="G10")
+      procedureG10(tokens);
+    else if(tokens[0]=="G11")
+      procedureG11(tokens);
+    else
+      return -1;
     return 0;
 }

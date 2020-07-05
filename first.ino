@@ -30,7 +30,6 @@ void definePinMode() {
   pinMode(Y_MAX_PIN,INPUT);
   pinMode(Z_MIN_PIN,INPUT);
   pinMode(Z_MAX_PIN,INPUT);
-  
 }
 
 
