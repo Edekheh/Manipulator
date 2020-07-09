@@ -1,15 +1,29 @@
 #include "interpreter.h"
 #include "pins.h"
-
+#include <Arduino.h>
+#include <stdlib.h>
+String strInput;
 void setup() {
   definePinMode();
   Serial.begin(115200);
-
+InitializeServos();
   
 }
 
 void loop() {
 //TODO wywolanie funkcji zczytywania if ( Serial.avaliable()) i wywolanie interpretera
+  while(Serial.available())  {
+  strInput=Serial.readString();
+}
+if(strInput.length()>2) {
+char *input = new char[8];
+  strInput.toCharArray(input,strInput.length());
+  Serial.println(strInput);
+  if(interpreter(input)==-1)
+    Serial.println("Null error or invalid command");
+  //printf("iteracja");
+  strInput="";
+}
 }
 void definePinMode() {
   pinMode(X_STEP_PIN,OUTPUT);

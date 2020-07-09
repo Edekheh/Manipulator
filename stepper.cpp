@@ -91,26 +91,26 @@ void mov2(int axis1, int pos1, int axis2, int pos2)
     numOfStepps1 = AXIS_STEPS_PER_DEGREE[axis1] * numOfStepps1;
     int numOfStepps2 = abs(pos2 - AXIS_POS[axis2]);
     numOfStepps2 = AXIS_STEPS_PER_DEGREE[axis2] * numOfStepps2;
-    unsigned long lt1 = millis();
-    unsigned long lt2 = millis();
+    unsigned long lt1 = micros();
+    unsigned long lt2 = micros();
     unsigned long ct;
     digitalWrite(STEP_PINS[axis1], LOW);
     digitalWrite(STEP_PINS[axis2], LOW);
     while (max(numOfStepps1, numOfStepps2) > 0)
     {
-        ct = millis();
+        ct = micros();
         if (numOfStepps1 > 0)
         {
             checkStepTimer(lt1, ct, axis1);
             numOfStepps1--;
-            ct = millis();
+            ct = micros();
             lt1 = ct;
         }
         if (numOfStepps2 > 0)
         {
             checkStepTimer(lt2, ct, axis2);
             numOfStepps2--;
-            ct = millis();
+            ct = micros();
             lt2 = ct;
         }
     }
@@ -127,35 +127,35 @@ void mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3)  {
     numOfStepps2 = AXIS_STEPS_PER_DEGREE[axis2] * numOfStepps2;
     int numOfStepps3 = abs(pos3 - AXIS_POS[axis3]);
     numOfStepps3 = AXIS_STEPS_PER_DEGREE[axis3] * numOfStepps3;
-    unsigned long lt1 = millis();
-    unsigned long lt2 = millis();
-    unsigned long lt3 = millis();
+    unsigned long lt1 = micros();
+    unsigned long lt2 = micros();
+    unsigned long lt3 = micros();
     unsigned long ct;
     digitalWrite(STEP_PINS[axis1], LOW);
     digitalWrite(STEP_PINS[axis2], LOW);
     digitalWrite(STEP_PINS[axis3], LOW);
     while(numOfStepps1 > 0 || numOfStepps3 > 0 ||numOfStepps3 > 0 )
     {
-        ct = millis();
+        ct = micros();
         if (numOfStepps1 > 0)
         {
             checkStepTimer(lt1, ct, axis1);
             numOfStepps1--;
-            ct = millis();
+            ct = micros();
             lt1 = ct;
         }
         if (numOfStepps2 > 0)
         {
             checkStepTimer(lt2, ct, axis2);
             numOfStepps2--;
-            ct = millis();
+            ct = micros();
             lt2 = ct;
         }
         if (numOfStepps3 > 0)
         {
             checkStepTimer(lt3, ct, axis3);
             numOfStepps3--;
-            ct = millis();
+            ct = micros();
             lt3 = ct;
         }
     }
