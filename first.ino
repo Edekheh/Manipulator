@@ -3,10 +3,13 @@
 
 void setup() {
   definePinMode();
+  Serial.begin(115200);
+
+  
 }
 
 void loop() {
-
+//TODO wywolanie funkcji zczytywania if ( Serial.avaliable()) i wywolanie interpretera
 }
 void definePinMode() {
   pinMode(X_STEP_PIN,OUTPUT);
