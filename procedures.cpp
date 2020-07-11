@@ -1,6 +1,6 @@
-//#include "procedures.h"
+#include "procedures.h"
 #include <stdlib.h>
-#include <cstdio>
+//#include <cstdio>
 
 void procedureG0(char **commands){
     char *temp = commands[1];

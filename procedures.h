@@ -1,5 +1,5 @@
-//#include "servo.h"
-//#include "stepper.h"
+#include "servo.h"
+#include "stepper.h"
 #include <stdlib.h>
 
 void procedureG0(char **commands);
