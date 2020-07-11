@@ -35,11 +35,11 @@ int interpreter(char input[]){
     char **tokens;
 
     tokens=parse(input);
-    //printf("val1: %s\n",tokens[0]);
-    //printf("val2: %s\n",tokens[1]);
-    //printf("val3: %s\n",tokens[2]);
-    //printf("val4: %s\n",tokens[3]);
-    //printf("val5: %s\n",tokens[4]);
+    Serial.println(tokens[0]);
+    Serial.println(tokens[1]);
+    Serial.println(tokens[2]);
+    Serial.println(tokens[3]);
+    Serial.println(tokens[4]);
 
     if(tokens==NULL)
       return -2;
