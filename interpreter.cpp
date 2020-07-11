@@ -1,7 +1,4 @@
 #include "interpreter.h"
-#include <string.h>
-#include <stdlib.h>
-#include <Arduino.h>
 
 #define DELIM " \t\r\n\a"
 #define BUFFER 32
@@ -38,11 +35,11 @@ int interpreter(char input[]){
     char **tokens;
 
     tokens=parse(input);
-    Serial.println(tokens[0]);
-    Serial.println(tokens[1]);
-    Serial.println(tokens[2]);
-    Serial.println(tokens[3]);
-    Serial.println(tokens[4]);
+    //printf("val1: %s\n",tokens[0]);
+    //printf("val2: %s\n",tokens[1]);
+    //printf("val3: %s\n",tokens[2]);
+    //printf("val4: %s\n",tokens[3]);
+    //printf("val5: %s\n",tokens[4]);
 
     if(tokens==NULL)
       return -2;
@@ -58,8 +55,10 @@ int interpreter(char input[]){
       procedureG10(tokens);
     else if(!strcmp(tokens[0],"G11"))
       procedureG11(tokens);
-    else
+    else{
+      free(tokens);
       return -1;
-    Serial.println("sukces - nie udało się");
+    }
+    free(tokens);
     return 0;
 }
