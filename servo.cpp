@@ -1,9 +1,9 @@
 #include "servo.h"
 #include "pins.h"
-Servo Servo1;
+//Servo Servo1;
 
 void InitializeServos() {
-    Servo1.attach(SERVO1_PIN);
+    //Servo1.attach(SERVO1_PIN);
 }
 
 int translateServoDeg(int deg) {
@@ -29,8 +29,8 @@ unsigned long currentMilSec;
 while(1)    {
     currentMilSec=millis();
     if(startMilSec+1000<currentMilSec) break;
-    Servo1.write(finalDeg);
+    //Servo1.write(finalDeg);
 }
-Servo1.write(89);
+//Servo1.write(89);
 //Serial.println(millis());
 }

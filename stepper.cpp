@@ -1,8 +1,23 @@
 #include "stepper.h"
 #include "pins.h"
-
 #define TIMER1_INTERRUPTS_ON    TIMSK1 |=  (1 << OCIE1A);
 #define TIMER1_INTERRUPTS_OFF   TIMSK1 &= ~(1 << OCIE1A);
+#define NUM_STEPPERS 5
+#define X_STEP_HIGH             PORTF |=  0b00000001;
+#define X_STEP_LOW              PORTF &= ~0b00000001;
+
+#define Y_STEP_HIGH             PORTF |=  0b01000000;
+#define Y_STEP_LOW              PORTF &= ~0b01000000;
+
+#define Z_STEP_HIGH             PORTL |=  0b00001000;
+#define Z_STEP_LOW              PORTL &= ~0b00001000;
+
+#define A_STEP_HIGH             PORTA |=  0b00010000;
+#define A_STEP_LOW              PORTA &= ~0b00010000;
+
+#define B_STEP_HIGH             PORTC |=  0b00000010;
+#define B_STEP_LOW              PORTC &= ~0b00000010;
+
 
 struct stepperInfo {
   // externally defined parameters
@@ -31,6 +46,20 @@ struct stepperInfo {
   volatile unsigned long di;               // above variable truncated
   volatile unsigned int stepCount;         // number of steps completed in current movement
 };
+volatile stepperInfo steppers[NUM_STEPPERS];
+
+void resetStepperInfo( stepperInfo& si ) {
+  si.n = 0;
+  si.d = 0;
+  si.di = 0;
+  si.stepCount = 0;
+  si.rampUpStepCount = 0;
+  si.rampUpStepTime = 0;
+  si.totalSteps = 0;
+  si.stepPosition = 0;
+  si.movementDone = false;
+}
+
 void xStep() {
   X_STEP_HIGH
   X_STEP_LOW
@@ -71,44 +100,32 @@ void bDir(int dir) {
   digitalWrite(B_DIR_PIN, dir);
 }
 
-void resetStepperInfo( stepperInfo& si ) {
-  si.n = 0;
-  si.d = 0;
-  si.di = 0;
-  si.stepCount = 0;
-  si.rampUpStepCount = 0;
-  si.rampUpStepTime = 0;
-  si.totalSteps = 0;
-  si.stepPosition = 0;
-  si.movementDone = false;
-}
-volatile stepperInfo steppers[4];
-
-  steppers[0].dirFunc = bDir;
-  steppers[0].stepFunc = bStep;
+void initializeSteppers()   {
+    steppers[0].dirFunc = xDir;
+  steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
 
-  steppers[1].dirFunc = aDir;
-  steppers[1].stepFunc = aStep;
+  steppers[1].dirFunc = yDir;
+  steppers[1].stepFunc = yStep;
   steppers[1].acceleration = 1000;
   steppers[1].minStepInterval = 50;
 
-  steppers[2].dirFunc = cDir;
-  steppers[2].stepFunc = cStep;
+  steppers[2].dirFunc = zDir;
+  steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
 
-  steppers[3].dirFunc = xDir;
-  steppers[3].stepFunc = xStep;
+  steppers[3].dirFunc = aDir;
+  steppers[3].stepFunc = aStep;
   steppers[3].acceleration = 1000;
   steppers[3].minStepInterval = 50;
 
-  steppers[4].dirFunc = yDir;
-  steppers[4].stepFunc = yStep;
+  steppers[4].dirFunc = bDir;
+  steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
-
+}
 
 void resetStepper(volatile stepperInfo& si) {
   si.c0 = si.acceleration;
@@ -128,6 +145,8 @@ void resetStepper(volatile stepperInfo& si) {
 
   si.estStepsToSpeed = n;
 }
+
+
 volatile byte remainingSteppersFlag = 0;
 
 float getDurationOfAcceleration(volatile stepperInfo& s, unsigned int numSteps) {
@@ -246,14 +265,6 @@ ISR(TIMER1_COMPA_vect)
   TCNT1  = 0;
 }
 
-void runAndWait() {
-  adjustSpeedScales();
-  setNextInterruptInterval();
-  TIMER1_INTERRUPTS_ON
-  while ( remainingSteppersFlag );
-  remainingSteppersFlag = 0;
-  nextStepperFlag = 0;
-}
 
 void adjustSpeedScales() {
   float maxTime = 0;
@@ -274,10 +285,24 @@ void adjustSpeedScales() {
   }
 }
 
+void runAndWait() {
+  adjustSpeedScales();
+  setNextInterruptInterval();
+  TIMER1_INTERRUPTS_ON
+  while ( remainingSteppersFlag );
+  remainingSteppersFlag = 0;
+  nextStepperFlag = 0;
+}
+
+
+
+
+
+
 
 //stepper motor controlls
-/*int STEP_PINS[5] = {X_STEP_PIN, Y_STEP_PIN, Z_STEP_PIN, E0_STEP_PIN, E1_STEP_PIN};
-int DIR_PINS[5] = {X_DIR_PIN, Y_DIR_PIN, Z_DIR_PIN, E0_DIR_PIN, E1_DIR_PIN};
+int STEP_PINS[5] = {X_STEP_PIN, Y_STEP_PIN, Z_STEP_PIN, A_STEP_PIN, B_STEP_PIN};
+int DIR_PINS[5] = {X_DIR_PIN, Y_DIR_PIN, Z_DIR_PIN, A_DIR_PIN, B_DIR_PIN};
 int ENABLE_PINS[5];
 int AXIS_STEPS_PER_REV[5] = {3200, 3200, 3200, 3200, 3200}; //microstepps
 float AXIS_MAX_REV[5] = {5, 3.2, 9, 1, 1.8};
@@ -437,4 +462,3 @@ void mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3)  {
         }
     }
 }
-*/
