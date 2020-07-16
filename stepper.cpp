@@ -3,22 +3,6 @@
 #define TIMER1_INTERRUPTS_ON    TIMSK1 |=  (1 << OCIE1A);
 #define TIMER1_INTERRUPTS_OFF   TIMSK1 &= ~(1 << OCIE1A);
 #define NUM_STEPPERS 5
-#define X_STEP_HIGH             PORTF |=  0b00000001;
-#define X_STEP_LOW              PORTF &= ~0b00000001;
-
-#define Y_STEP_HIGH             PORTF |=  0b01000000;
-#define Y_STEP_LOW              PORTF &= ~0b01000000;
-
-#define Z_STEP_HIGH             PORTL |=  0b00001000;
-#define Z_STEP_LOW              PORTL &= ~0b00001000;
-
-#define A_STEP_HIGH             PORTA |=  0b00010000;
-#define A_STEP_LOW              PORTA &= ~0b00010000;
-
-#define B_STEP_HIGH             PORTC |=  0b00000010;
-#define B_STEP_LOW              PORTC &= ~0b00000010;
-
-
 struct stepperInfo {
   // externally defined parameters
   float acceleration;
@@ -61,47 +45,47 @@ void resetStepperInfo( stepperInfo& si ) {
 }
 
 void xStep() {
-  X_STEP_HIGH
-  X_STEP_LOW
+digitalWrite(X_STEP_PIN, HIGH);
+digitalWrite(X_STEP_PIN, LOW);
 }
 void xDir(int dir) {
   digitalWrite(X_DIR_PIN, dir);
 }
 
 void yStep() {
-  Y_STEP_HIGH
-  Y_STEP_LOW
+  digitalWrite(Y_STEP_PIN, HIGH);
+digitalWrite(Y_STEP_PIN, LOW);
 }
 void yDir(int dir) {
   digitalWrite(Y_DIR_PIN, dir);
 }
 
 void zStep() {
-  Z_STEP_HIGH
-  Z_STEP_LOW
+  digitalWrite(Z_STEP_PIN, HIGH);
+digitalWrite(Z_STEP_PIN, LOW);
 }
 void zDir(int dir) {
   digitalWrite(Z_DIR_PIN, dir);
 }
 
 void aStep() {
-  A_STEP_HIGH
-  A_STEP_LOW
+  digitalWrite(A_STEP_PIN, HIGH);
+digitalWrite(A_STEP_PIN, LOW);
 }
 void aDir(int dir) {
   digitalWrite(A_DIR_PIN, dir);
 }
 
 void bStep() {
-  B_STEP_HIGH
-  B_STEP_LOW
+ digitalWrite(B_STEP_PIN, HIGH);
+digitalWrite(B_STEP_PIN, LOW);
 }
 void bDir(int dir) {
   digitalWrite(B_DIR_PIN, dir);
 }
 
 void initializeSteppers()   {
-    steppers[0].dirFunc = xDir;
+  steppers[0].dirFunc = xDir;
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
@@ -363,7 +347,7 @@ void writeDirPin(int axis, int pos)
 }
 void mov1(int axis, int pos)
 {
-    int tempPos = abs(pos - AXIS_POS[axis]);
+  /*  int tempPos = abs(pos - AXIS_POS[axis]);
     writeDirPin(axis, pos);
     for (int i = 0; i < AXIS_STEPS_PER_DEGREE[axis] * tempPos; i++)
     {
@@ -372,7 +356,13 @@ void mov1(int axis, int pos)
         digitalWrite(STEP_PINS[axis], LOW);
         delayMicroseconds(AXIS_SPEED[axis]);
     }
-    AXIS_POS[axis] = pos;
+    AXIS_POS[axis] = pos;*/
+
+    //int tempPos=abs(pos-steppers[axis].stepPosition);
+    //writeDirPin(axis,pos);
+    //prepareMovement(axis,AXIS_STEPS_PER_DEGREE[axis] * tempPos00,
+//);
+   // runAndWait();
 }
 void checkStepTimer(unsigned long lt, unsigned long ct, int axis)
 {
