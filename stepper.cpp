@@ -6,9 +6,15 @@
 struct stepperInfo {
   // externally defined parameters
   float acceleration;
+  int steps_per_rev;
+  float max_revs;
+  int degrees;
+  float steps_per_deg=(steps_per_rev*max_revs)/degrees;
+  int currentPosition=0;
   volatile unsigned long minStepInterval; // ie. max speed, smaller is faster
   void (*dirFunc)(int);
   void (*stepFunc)();
+
 
   // derived parameters
   unsigned int c0;                // step interval for first step, determines acceleration
@@ -89,26 +95,41 @@ void initializeSteppers()   {
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
+  steppers[0].steps_per_rev = 3200;
+  steppers[0].max_revs = 5;
+  steppers[0].degrees = 180;
 
   steppers[1].dirFunc = yDir;
   steppers[1].stepFunc = yStep;
   steppers[1].acceleration = 1000;
   steppers[1].minStepInterval = 50;
+  steppers[1].steps_per_rev = 25600;
+  steppers[1].max_revs = 3.2;
+  steppers[1].degrees = 180;
 
   steppers[2].dirFunc = zDir;
   steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
+  steppers[2].steps_per_rev = 3200;
+  steppers[2].max_revs = 9;
+  steppers[2].degrees = 180;
 
   steppers[3].dirFunc = aDir;
   steppers[3].stepFunc = aStep;
   steppers[3].acceleration = 1000;
   steppers[3].minStepInterval = 50;
+  steppers[3].steps_per_rev = 3200;
+  steppers[3].max_revs = 1;
+  steppers[3].degrees = 360;
 
   steppers[4].dirFunc = bDir;
   steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
+  steppers[4].steps_per_rev = 3200;
+  steppers[4].max_revs = 1.8;
+  steppers[4].degrees = 180;
 }
 
 void resetStepper(volatile stepperInfo& si) {
@@ -278,16 +299,49 @@ void runAndWait() {
   nextStepperFlag = 0;
 }
 
+int countSteppes(int whichMotor, long desiredPos) {
+int steppsToDo;
 
+return steppsToDo;
+}
+
+bool checkDeg(int axis,int deg) {
+  //TODO
+}
+
+bool checkPos(int axis,int pos) {
+  //TODO
+}
+
+void mov0(int axis,int deg) {
+  if(checkDeg(axis,deg))  {
+    //TODO
+  }
+}
+
+void mov1(int axis,int pos) {
+  prepareMovement(axis,countSteppes(axis,pos));
+  runAndWait();
+}
+
+void mov2(int axis1, int pos1, int axis2, int pos2) {
+  prepareMovement(axis1,countSteppes(axis1,pos1));
+  prepareMovement(axis2,countSteppes(axis2,pos2));
+  runAndWait();
+}
+
+void mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3) {
+  prepareMovement(axis1,countSteppes(axis1,pos1));
+  prepareMovement(axis2,countSteppes(axis2,pos2));
+  prepareMovement(axis3,countSteppes(axis3,pos3));
+  runAndWait();
+}
 
 
 
 
 
 //stepper motor controlls
-int STEP_PINS[5] = {X_STEP_PIN, Y_STEP_PIN, Z_STEP_PIN, A_STEP_PIN, B_STEP_PIN};
-int DIR_PINS[5] = {X_DIR_PIN, Y_DIR_PIN, Z_DIR_PIN, A_DIR_PIN, B_DIR_PIN};
-int ENABLE_PINS[5];
 int AXIS_STEPS_PER_REV[5] = {3200, 3200, 3200, 3200, 3200}; //microstepps
 float AXIS_MAX_REV[5] = {5, 3.2, 9, 1, 1.8};
 int AXIS_POS[5] = {90, 90, 90, 180, 90};
@@ -299,42 +353,8 @@ float AXIS_STEPS_PER_DEGREE[5] = {(AXIS_STEPS_PER_REV[0] * AXIS_MAX_REV[0]) / AX
                                   (AXIS_STEPS_PER_REV[2] * AXIS_MAX_REV[2]) / AXIS_DEGREES[2],
                                   (AXIS_STEPS_PER_REV[3] * AXIS_MAX_REV[3]) / AXIS_DEGREES[3],
                                   (AXIS_STEPS_PER_REV[4] * AXIS_MAX_REV[4]) / AXIS_DEGREES[4]};
-bool checkDeg(int axis, int deg)
-{
-    if ((AXIS_POS[axis] + deg < 0) || (AXIS_POS[axis] + deg > AXIS_DEGREES[axis]))
-        return 0;
-    return 1;
-}
-bool checkPos(int axis, int pos)
-{
-    //TODO
-}
-void mov0(int axis, int deg)
-{
-    if (checkDeg(axis, deg))
-    {
-        if (deg < 0)
-        {
-            digitalWrite(DIR_PINS[axis], !AXIS_DIRECTION[axis]);
-        }
-        else
-        {
-            digitalWrite(DIR_PINS[axis], AXIS_DIRECTION[axis]);
-        }
-        int tempDeg = abs(deg);
-        tempDeg = tempDeg * AXIS_STEPS_PER_DEGREE[axis];
-        for (int i = 0; i < tempDeg; i++)
-        {
-            digitalWrite(STEP_PINS[axis], HIGH);
-            delayMicroseconds(AXIS_SPEED[axis]);
-            digitalWrite(STEP_PINS[axis], LOW);
-            delayMicroseconds(AXIS_SPEED[axis]);
-        }
-        AXIS_POS[axis] += deg;
-    }
-}
 
-void writeDirPin(int axis, int pos)
+/*void writeDirPin(int axis, int pos)
 {
     if (pos > AXIS_POS[axis])
     {
@@ -344,111 +364,4 @@ void writeDirPin(int axis, int pos)
     {
         digitalWrite(DIR_PINS[axis], !AXIS_DIRECTION[axis]);
     }
-}
-void mov1(int axis, int pos)
-{
-  /*  int tempPos = abs(pos - AXIS_POS[axis]);
-    writeDirPin(axis, pos);
-    for (int i = 0; i < AXIS_STEPS_PER_DEGREE[axis] * tempPos; i++)
-    {
-        digitalWrite(STEP_PINS[axis], HIGH);
-        delayMicroseconds(AXIS_SPEED[axis]);
-        digitalWrite(STEP_PINS[axis], LOW);
-        delayMicroseconds(AXIS_SPEED[axis]);
-    }
-    AXIS_POS[axis] = pos;*/
-
-    //int tempPos=abs(pos-steppers[axis].stepPosition);
-    //writeDirPin(axis,pos);
-    //prepareMovement(axis,AXIS_STEPS_PER_DEGREE[axis] * tempPos00,
-//);
-   // runAndWait();
-}
-void checkStepTimer(unsigned long lt, unsigned long ct, int axis)
-{
-    if (lt + AXIS_SPEED[axis] > ct)
-    {
-        digitalWrite(STEP_PINS[axis], HIGH);
-        delayMicroseconds(100);
-        digitalWrite(STEP_PINS[axis], LOW);
-    }
-}
-void mov2(int axis1, int pos1, int axis2, int pos2)
-{
-    writeDirPin(axis1, pos1);
-    writeDirPin(axis2, pos2);
-    int numOfStepps1 = abs(pos1 - AXIS_POS[axis1]);
-    numOfStepps1 = AXIS_STEPS_PER_DEGREE[axis1] * numOfStepps1;
-    int numOfStepps2 = abs(pos2 - AXIS_POS[axis2]);
-    numOfStepps2 = AXIS_STEPS_PER_DEGREE[axis2] * numOfStepps2;
-    unsigned long lt1 = micros();
-    unsigned long lt2 = micros();
-    unsigned long ct;
-    digitalWrite(STEP_PINS[axis1], LOW);
-    digitalWrite(STEP_PINS[axis2], LOW);
-    while (max(numOfStepps1, numOfStepps2) > 0)
-    {
-        ct = micros();
-        if (numOfStepps1 > 0)
-        {
-            checkStepTimer(lt1, ct, axis1);
-            numOfStepps1--;
-            ct = micros();
-            lt1 = ct;
-        }
-        if (numOfStepps2 > 0)
-        {
-            checkStepTimer(lt2, ct, axis2);
-            numOfStepps2--;
-            ct = micros();
-            lt2 = ct;
-        }
-    }
-    AXIS_POS[axis1] = pos1;
-    AXIS_POS[axis2] = pos2;
-}
-
-
-void mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3)  {
-     writeDirPin(axis1, pos1);
-    writeDirPin(axis2, pos2);
-    writeDirPin(axis3, pos3);
-    int numOfStepps1 = abs(pos1 - AXIS_POS[axis1]);
-    numOfStepps1 = AXIS_STEPS_PER_DEGREE[axis1] * numOfStepps1;
-    int numOfStepps2 = abs(pos2 - AXIS_POS[axis2]);
-    numOfStepps2 = AXIS_STEPS_PER_DEGREE[axis2] * numOfStepps2;
-    int numOfStepps3 = abs(pos3 - AXIS_POS[axis3]);
-    numOfStepps3 = AXIS_STEPS_PER_DEGREE[axis3] * numOfStepps3;
-    unsigned long lt1 = micros();
-    unsigned long lt2 = micros();
-    unsigned long lt3 = micros();
-    unsigned long ct;
-    digitalWrite(STEP_PINS[axis1], LOW);
-    digitalWrite(STEP_PINS[axis2], LOW);
-    digitalWrite(STEP_PINS[axis3], LOW);
-    while(numOfStepps1 > 0 || numOfStepps3 > 0 ||numOfStepps3 > 0 )
-    {
-        ct = micros();
-        if (numOfStepps1 > 0)
-        {
-            checkStepTimer(lt1, ct, axis1);
-            numOfStepps1--;
-            ct = micros();
-            lt1 = ct;
-        }
-        if (numOfStepps2 > 0)
-        {
-            checkStepTimer(lt2, ct, axis2);
-            numOfStepps2--;
-            ct = micros();
-            lt2 = ct;
-        }
-        if (numOfStepps3 > 0)
-        {
-            checkStepTimer(lt3, ct, axis3);
-            numOfStepps3--;
-            ct = micros();
-            lt3 = ct;
-        }
-    }
-}
+}*/
