@@ -1,44 +1,45 @@
 #include "stepper.h"
 #include "pins.h"
-#define TIMER1_INTERRUPTS_ON    TIMSK1 |=  (1 << OCIE1A);
-#define TIMER1_INTERRUPTS_OFF   TIMSK1 &= ~(1 << OCIE1A);
+#define TIMER1_INTERRUPTS_ON TIMSK1 |= (1 << OCIE1A);
+#define TIMER1_INTERRUPTS_OFF TIMSK1 &= ~(1 << OCIE1A);
 #define NUM_STEPPERS 5
-struct stepperInfo {
+struct stepperInfo
+{
   // externally defined parameters
   float acceleration;
   int steps_per_rev;
   float max_revs;
   int degrees;
-  float steps_per_deg=(steps_per_rev*max_revs)/degrees;
-  int currentPosition=0;
+  float steps_per_deg = (steps_per_rev * max_revs) / degrees;
+  int currentPosition = 0;
   volatile unsigned long minStepInterval; // ie. max speed, smaller is faster
   void (*dirFunc)(int);
   void (*stepFunc)();
 
-
   // derived parameters
-  unsigned int c0;                // step interval for first step, determines acceleration
-  long stepPosition;              // current position of stepper (total of all movements taken so far)
+  unsigned int c0;   // step interval for first step, determines acceleration
+  long stepPosition; // current position of stepper (total of all movements taken so far)
 
   // per movement variables (only changed once per movement)
-  volatile int dir;                        // current direction of movement, used to keep track of position
-  volatile unsigned int totalSteps;        // number of steps requested for current movement
-  volatile bool movementDone = false;      // true if the current movement has been completed (used by main program to wait for completion)
-  volatile unsigned int rampUpStepCount;   // number of steps taken to reach either max speed, or half-way to the goal (will be zero until this number is known)
-  volatile unsigned long estStepsToSpeed;  // estimated steps required to reach max speed
-  volatile unsigned long estTimeForMove;   // estimated time (interrupt ticks) required to complete movement
+  volatile int dir;                       // current direction of movement, used to keep track of position
+  volatile unsigned int totalSteps;       // number of steps requested for current movement
+  volatile bool movementDone = false;     // true if the current movement has been completed (used by main program to wait for completion)
+  volatile unsigned int rampUpStepCount;  // number of steps taken to reach either max speed, or half-way to the goal (will be zero until this number is known)
+  volatile unsigned long estStepsToSpeed; // estimated steps required to reach max speed
+  volatile unsigned long estTimeForMove;  // estimated time (interrupt ticks) required to complete movement
   volatile unsigned long rampUpStepTime;
-  volatile float speedScale;               // used to slow down this motor to make coordinated movement with other motors
+  volatile float speedScale; // used to slow down this motor to make coordinated movement with other motors
 
   // per iteration variables (potentially changed every interrupt)
-  volatile unsigned int n;                 // index in acceleration curve, used to calculate next interval
-  volatile float d;                        // current interval length
-  volatile unsigned long di;               // above variable truncated
-  volatile unsigned int stepCount;         // number of steps completed in current movement
+  volatile unsigned int n;         // index in acceleration curve, used to calculate next interval
+  volatile float d;                // current interval length
+  volatile unsigned long di;       // above variable truncated
+  volatile unsigned int stepCount; // number of steps completed in current movement
 };
 volatile stepperInfo steppers[NUM_STEPPERS];
 
-void resetStepperInfo( stepperInfo& si ) {
+void resetStepperInfo(stepperInfo &si)
+{
   si.n = 0;
   si.d = 0;
   si.di = 0;
@@ -50,47 +51,58 @@ void resetStepperInfo( stepperInfo& si ) {
   si.movementDone = false;
 }
 
-void xStep() {
-digitalWrite(X_STEP_PIN, HIGH);
-digitalWrite(X_STEP_PIN, LOW);
+void xStep()
+{
+  digitalWrite(X_STEP_PIN, HIGH);
+  digitalWrite(X_STEP_PIN, LOW);
 }
-void xDir(int dir) {
+void xDir(int dir)
+{
   digitalWrite(X_DIR_PIN, dir);
 }
 
-void yStep() {
+void yStep()
+{
   digitalWrite(Y_STEP_PIN, HIGH);
-digitalWrite(Y_STEP_PIN, LOW);
+  digitalWrite(Y_STEP_PIN, LOW);
 }
-void yDir(int dir) {
+void yDir(int dir)
+{
   digitalWrite(Y_DIR_PIN, dir);
 }
 
-void zStep() {
+void zStep()
+{
   digitalWrite(Z_STEP_PIN, HIGH);
-digitalWrite(Z_STEP_PIN, LOW);
+  digitalWrite(Z_STEP_PIN, LOW);
 }
-void zDir(int dir) {
+void zDir(int dir)
+{
   digitalWrite(Z_DIR_PIN, dir);
 }
 
-void aStep() {
+void aStep()
+{
   digitalWrite(A_STEP_PIN, HIGH);
-digitalWrite(A_STEP_PIN, LOW);
+  digitalWrite(A_STEP_PIN, LOW);
 }
-void aDir(int dir) {
+void aDir(int dir)
+{
   digitalWrite(A_DIR_PIN, dir);
 }
 
-void bStep() {
- digitalWrite(B_STEP_PIN, HIGH);
-digitalWrite(B_STEP_PIN, LOW);
+void bStep()
+{
+  digitalWrite(B_STEP_PIN, HIGH);
+  digitalWrite(B_STEP_PIN, LOW);
 }
-void bDir(int dir) {
+void bDir(int dir)
+{
   digitalWrite(B_DIR_PIN, dir);
 }
 
-void initializeSteppers()   {
+void initializeSteppers()
+{
   steppers[0].dirFunc = xDir;
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
@@ -132,7 +144,8 @@ void initializeSteppers()   {
   steppers[4].degrees = 180;
 }
 
-void resetStepper(volatile stepperInfo& si) {
+void resetStepper(volatile stepperInfo &si)
+{
   si.c0 = si.acceleration;
   si.d = si.c0;
   si.di = si.d;
@@ -145,71 +158,80 @@ void resetStepper(volatile stepperInfo& si) {
   float a = si.minStepInterval / (float)si.c0;
   a *= 0.676;
 
-  float m = ((a*a - 1) / (-2 * a));
+  float m = ((a * a - 1) / (-2 * a));
   float n = m * m;
 
   si.estStepsToSpeed = n;
 }
 
-
 volatile byte remainingSteppersFlag = 0;
 
-float getDurationOfAcceleration(volatile stepperInfo& s, unsigned int numSteps) {
+float getDurationOfAcceleration(volatile stepperInfo &s, unsigned int numSteps)
+{
   float d = s.c0;
   float totalDuration = 0;
-  for (unsigned int n = 1; n < numSteps; n++) {
+  for (unsigned int n = 1; n < numSteps; n++)
+  {
     d = d - (2 * d) / (4 * n + 1);
     totalDuration += d;
   }
   return totalDuration;
 }
 
-void prepareMovement(int whichMotor, long steps) {
-  volatile stepperInfo& si = steppers[whichMotor];
-  si.dirFunc( steps < 0 ? HIGH : LOW );
+void prepareMovement(int whichMotor, long steps)
+{
+  volatile stepperInfo &si = steppers[whichMotor];
+  si.dirFunc(steps < 0 ? HIGH : LOW);
   si.dir = steps > 0 ? 1 : -1;
   si.totalSteps = abs(steps);
   resetStepper(si);
-  
+
   remainingSteppersFlag |= (1 << whichMotor);
 
   unsigned long stepsAbs = abs(steps);
 
-  if ( (2 * si.estStepsToSpeed) < stepsAbs ) {
+  if ((2 * si.estStepsToSpeed) < stepsAbs)
+  {
     // there will be a period of time at full speed
     unsigned long stepsAtFullSpeed = stepsAbs - 2 * si.estStepsToSpeed;
     float accelDecelTime = getDurationOfAcceleration(si, si.estStepsToSpeed);
     si.estTimeForMove = 2 * accelDecelTime + stepsAtFullSpeed * si.minStepInterval;
   }
-  else {
+  else
+  {
     // will not reach full speed before needing to slow down again
-    float accelDecelTime = getDurationOfAcceleration( si, stepsAbs / 2 );
+    float accelDecelTime = getDurationOfAcceleration(si, stepsAbs / 2);
     si.estTimeForMove = 2 * accelDecelTime;
   }
 }
 
 volatile byte nextStepperFlag = 0;
 
-void setNextInterruptInterval() {
+void setNextInterruptInterval()
+{
 
   bool movementComplete = true;
 
   unsigned long mind = 999999;
-  for (int i = 0; i < NUM_STEPPERS; i++) {
-    if ( ((1 << i) & remainingSteppersFlag) && steppers[i].di < mind ) {
+  for (int i = 0; i < NUM_STEPPERS; i++)
+  {
+    if (((1 << i) & remainingSteppersFlag) && steppers[i].di < mind)
+    {
       mind = steppers[i].di;
     }
   }
 
   nextStepperFlag = 0;
-  for (int i = 0; i < NUM_STEPPERS; i++) {
-    if ( ! steppers[i].movementDone )
+  for (int i = 0; i < NUM_STEPPERS; i++)
+  {
+    if (!steppers[i].movementDone)
       movementComplete = false;
-    if ( ((1 << i) & remainingSteppersFlag) && steppers[i].di == mind )
+    if (((1 << i) & remainingSteppersFlag) && steppers[i].di == mind)
       nextStepperFlag |= (1 << i);
   }
 
-  if ( remainingSteppersFlag == 0 ) {
+  if (remainingSteppersFlag == 0)
+  {
     TIMER1_INTERRUPTS_OFF
     OCR1A = 65500;
   }
@@ -223,41 +245,49 @@ ISR(TIMER1_COMPA_vect)
 
   OCR1A = 65500;
 
-  for (int i = 0; i < NUM_STEPPERS; i++) {
+  for (int i = 0; i < NUM_STEPPERS; i++)
+  {
 
-    if ( ! ((1 << i) & remainingSteppersFlag) )
+    if (!((1 << i) & remainingSteppersFlag))
       continue;
 
-    if ( ! (nextStepperFlag & (1 << i)) ) {
+    if (!(nextStepperFlag & (1 << i)))
+    {
       steppers[i].di -= tmpCtr;
       continue;
     }
 
-    volatile stepperInfo& s = steppers[i];
+    volatile stepperInfo &s = steppers[i];
 
-    if ( s.stepCount < s.totalSteps ) {
+    if (s.stepCount < s.totalSteps)
+    {
       s.stepFunc();
       s.stepCount++;
       s.stepPosition += s.dir;
-      if ( s.stepCount >= s.totalSteps ) {
+      if (s.stepCount >= s.totalSteps)
+      {
         s.movementDone = true;
         remainingSteppersFlag &= ~(1 << i);
       }
     }
 
-    if ( s.rampUpStepCount == 0 ) {
+    if (s.rampUpStepCount == 0)
+    {
       s.n++;
       s.d = s.d - (2 * s.d) / (4 * s.n + 1);
-      if ( s.d <= s.minStepInterval ) {
+      if (s.d <= s.minStepInterval)
+      {
         s.d = s.minStepInterval;
         s.rampUpStepCount = s.stepCount;
       }
-      if ( s.stepCount >= s.totalSteps / 2 ) {
+      if (s.stepCount >= s.totalSteps / 2)
+      {
         s.rampUpStepCount = s.stepCount;
       }
       s.rampUpStepTime += s.d;
     }
-    else if ( s.stepCount >= s.totalSteps - s.rampUpStepCount ) {
+    else if (s.stepCount >= s.totalSteps - s.rampUpStepCount)
+    {
       s.d = (s.d * (4 * s.n + 1)) / (4 * s.n + 1 - 2);
       s.n--;
     }
@@ -267,101 +297,107 @@ ISR(TIMER1_COMPA_vect)
 
   setNextInterruptInterval();
 
-  TCNT1  = 0;
+  TCNT1 = 0;
 }
 
-
-void adjustSpeedScales() {
+void adjustSpeedScales()
+{
   float maxTime = 0;
-  
-  for (int i = 0; i < NUM_STEPPERS; i++) {
-    if ( ! ((1 << i) & remainingSteppersFlag) )
+
+  for (int i = 0; i < NUM_STEPPERS; i++)
+  {
+    if (!((1 << i) & remainingSteppersFlag))
       continue;
-    if ( steppers[i].estTimeForMove > maxTime )
+    if (steppers[i].estTimeForMove > maxTime)
       maxTime = steppers[i].estTimeForMove;
   }
 
-  if ( maxTime != 0 ) {
-    for (int i = 0; i < NUM_STEPPERS; i++) {
-      if ( ! ( (1 << i) & remainingSteppersFlag) )
+  if (maxTime != 0)
+  {
+    for (int i = 0; i < NUM_STEPPERS; i++)
+    {
+      if (!((1 << i) & remainingSteppersFlag))
         continue;
       steppers[i].speedScale = maxTime / steppers[i].estTimeForMove;
     }
   }
 }
 
-void runAndWait() {
+void runAndWait()
+{
   adjustSpeedScales();
   setNextInterruptInterval();
   TIMER1_INTERRUPTS_ON
-  while ( remainingSteppersFlag );
+  while (remainingSteppersFlag)
+    ;
   remainingSteppersFlag = 0;
   nextStepperFlag = 0;
 }
 
-int countSteppes(int whichMotor, long desiredPos) {
-int steppsToDo;
-
-return steppsToDo;
+int countSteppes(int whichMotor, int desiredPos)
+{
+  int steppsToDo=(steppers[whichMotor].currentPosition-desiredPos);
+  steppsToDo*=steppers[whichMotor].steps_per_deg;
+  return steppsToDo;
 }
 
-bool checkDeg(int axis,int deg) {
+bool checkDeg(int axis, int deg)
+{
   //TODO
 }
 
-bool checkPos(int axis,int pos) {
-  //TODO
+bool checkPos(int axis, int pos)
+{
+  if(pos>=0 && pos<=steppers[axis].degrees) return true;
+  return false;
 }
 
-void mov0(int axis,int deg) {
-  if(checkDeg(axis,deg))  {
-    //TODO
+void mov0(int axis, int deg)
+{
+  if (checkDeg(axis, deg))
+  {
+    prepareMovement(axis, countSteppes(axis, deg));
+    runAndWait();
   }
 }
 
-void mov1(int axis,int pos) {
-  prepareMovement(axis,countSteppes(axis,pos));
-  runAndWait();
-}
-
-void mov2(int axis1, int pos1, int axis2, int pos2) {
-  prepareMovement(axis1,countSteppes(axis1,pos1));
-  prepareMovement(axis2,countSteppes(axis2,pos2));
-  runAndWait();
-}
-
-void mov3(int axis1, int pos1, int axis2, int pos2,int axis3,int pos3) {
-  prepareMovement(axis1,countSteppes(axis1,pos1));
-  prepareMovement(axis2,countSteppes(axis2,pos2));
-  prepareMovement(axis3,countSteppes(axis3,pos3));
-  runAndWait();
-}
-
-
-
-
-
-//stepper motor controlls
-int AXIS_STEPS_PER_REV[5] = {3200, 3200, 3200, 3200, 3200}; //microstepps
-float AXIS_MAX_REV[5] = {5, 3.2, 9, 1, 1.8};
-int AXIS_POS[5] = {90, 90, 90, 180, 90};
-int AXIS_DEGREES[5] = {180, 180, 180, 360, 180};
-int AXIS_SPEED[5] = {400, 300, 200, 300, 500};
-bool AXIS_DIRECTION[5] = {1, 0, 0, 0, 1}; //1 for inverse logic
-float AXIS_STEPS_PER_DEGREE[5] = {(AXIS_STEPS_PER_REV[0] * AXIS_MAX_REV[0]) / AXIS_DEGREES[0],
-                                  (AXIS_STEPS_PER_REV[1] * AXIS_MAX_REV[1]) / AXIS_DEGREES[1],
-                                  (AXIS_STEPS_PER_REV[2] * AXIS_MAX_REV[2]) / AXIS_DEGREES[2],
-                                  (AXIS_STEPS_PER_REV[3] * AXIS_MAX_REV[3]) / AXIS_DEGREES[3],
-                                  (AXIS_STEPS_PER_REV[4] * AXIS_MAX_REV[4]) / AXIS_DEGREES[4]};
-
-/*void writeDirPin(int axis, int pos)
+void mov1(int axis, int pos)
 {
-    if (pos > AXIS_POS[axis])
+  if (checkPos(axis, pos))
+  {
+    prepareMovement(axis, countSteppes(axis, pos));
+    runAndWait();
+  }
+}
+
+void mov2(int axis1, int pos1, int axis2, int pos2)
+{
+  if (checkPos(axis1, pos1) && checkPos(axis2, pos2))
+  {
+    prepareMovement(axis1, countSteppes(axis1, pos1));
+    prepareMovement(axis2, countSteppes(axis2, pos2));
+    runAndWait();
+  }
+}
+
+void mov3(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3)
+{
+  if (checkPos(axis1, pos1) && checkPos(axis2, pos2) && checkPos(axis3, pos3) )
     {
-        digitalWrite(DIR_PINS[axis], AXIS_DIRECTION[axis]);
+      prepareMovement(axis1, countSteppes(axis1, pos1));
+      prepareMovement(axis2, countSteppes(axis2, pos2));
+      prepareMovement(axis3, countSteppes(axis3, pos3));
+      runAndWait();
     }
-    else if (pos < AXIS_POS[axis])
+}
+void mov4(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3,int axis4, int pos4)
+{
+  if (checkPos(axis1, pos1) && checkPos(axis2, pos2) && checkPos(axis3, pos3) && checkPos(axis4, pos4 ))
     {
-        digitalWrite(DIR_PINS[axis], !AXIS_DIRECTION[axis]);
+      prepareMovement(axis1, countSteppes(axis1, pos1));
+      prepareMovement(axis2, countSteppes(axis2, pos2));
+      prepareMovement(axis3, countSteppes(axis3, pos3));
+      prepareMovement(axis4, countSteppes(axis3, pos4));
+      runAndWait();
     }
-}*/
+}
