@@ -33,14 +33,14 @@ char** parse(char line[]){
 int interpreter(char input[]){
     
     char **tokens;
-
+/*
     tokens=parse(input);
     Serial.println(tokens[0]);
     Serial.println(tokens[1]);
     Serial.println(tokens[2]);
     Serial.println(tokens[3]);
     Serial.println(tokens[4]);
-
+*/
     if(tokens==NULL)
       return -2;
     if(!strcmp(tokens[0],"G0"))

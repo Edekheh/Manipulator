@@ -15,7 +15,7 @@ void procedureG1(char **commands){
     char *temp = commands[1];
     int axis = temp[0]-65;
     int pos = atoi(commands[2]);
-    Serial.println("dure G1\n");
+    Serial.println("Procedure G1");
     Serial.println(axis);
     Serial.println(pos);
     mov1(axis,pos);
