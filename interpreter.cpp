@@ -33,8 +33,9 @@ char** parse(char line[]){
 int interpreter(char input[]){
     
     char **tokens;
-/*
     tokens=parse(input);
+/*
+    
     Serial.println(tokens[0]);
     Serial.println(tokens[1]);
     Serial.println(tokens[2]);
@@ -55,6 +56,10 @@ int interpreter(char input[]){
       procedureG10(tokens);
     else if(!strcmp(tokens[0],"G11"))
       procedureG11(tokens);
+    else if(!strcmp(tokens[0],"INIT"))  
+      procedureInitialize();
+    else if(!strcmp(tokens[0],"M0"))  
+      procedureM0(tokens);
     else{
       free(tokens);
       return -1;

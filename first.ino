@@ -64,6 +64,7 @@ void definePinMode() {
   TCCR1B |= (1 << WGM12);                   // CTC mode
   TCCR1B |= ((1 << CS11) | (1 << CS10));    // 64 prescaler
   interrupts();
+  procedureInitialize();
 }
 
 

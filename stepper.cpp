@@ -7,10 +7,7 @@ struct stepperInfo
 {
   // externally defined parameters
   float acceleration;
-  int steps_per_rev;
-  float max_revs;
-  int degrees;
-  float steps_per_deg = (steps_per_rev * max_revs) / degrees;
+  unsigned long steps_per_deg;
   int currentPosition = 0;
   volatile unsigned long minStepInterval; // ie. max speed, smaller is faster
   void (*dirFunc)(int);
@@ -100,48 +97,59 @@ void bDir(int dir)
 {
   digitalWrite(B_DIR_PIN, dir);
 }
-
+void changeValues(int axis,int parameter,int value)  {
+    Serial.println("Axis nr : ");
+    Serial.print(axis);
+    Serial.print(" new");
+    if(parameter==0)  {
+steppers[axis].acceleration=value;
+      Serial.print(" acceleration = ");
+    }
+      
+    else if(parameter==1) {
+steppers[axis].minStepInterval=value;
+      Serial.print(" minStepInterval = ");
+    }
+      
+    else if(parameter==2) {
+steppers[axis].steps_per_deg=value;
+      Serial.print(" steps per degree = ");
+    }
+      
+Serial.print(value);
+  
+}
 void initializeSteppers()
 {
   steppers[0].dirFunc = xDir;
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
-  steppers[0].steps_per_rev = 3200;
-  steppers[0].max_revs = 5;
-  steppers[0].degrees = 180;
+  steppers[0].steps_per_deg = (3200 * 1) / 180;
 
   steppers[1].dirFunc = yDir;
   steppers[1].stepFunc = yStep;
   steppers[1].acceleration = 1000;
-  steppers[1].minStepInterval = 50;
-  steppers[1].steps_per_rev = 25600;
-  steppers[1].max_revs = 3.2;
-  steppers[1].degrees = 180;
+  steppers[1].minStepInterval = 10;
+  steppers[1].steps_per_deg = (12800) / 60;
 
   steppers[2].dirFunc = zDir;
   steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
-  steppers[2].steps_per_rev = 3200;
-  steppers[2].max_revs = 9;
-  steppers[2].degrees = 180;
+  steppers[2].steps_per_deg = (3200 * 1) / 180;
 
   steppers[3].dirFunc = aDir;
   steppers[3].stepFunc = aStep;
   steppers[3].acceleration = 1000;
   steppers[3].minStepInterval = 50;
-  steppers[3].steps_per_rev = 3200;
-  steppers[3].max_revs = 1;
-  steppers[3].degrees = 360;
+  steppers[3].steps_per_deg = (3200 * 1) / 360;
 
   steppers[4].dirFunc = bDir;
   steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
-  steppers[4].steps_per_rev = 3200;
-  steppers[4].max_revs = 1.8;
-  steppers[4].degrees = 180;
+  steppers[4].steps_per_deg = (3200 * 1) / 180;
 }
 
 void resetStepper(volatile stepperInfo &si)
@@ -334,10 +342,16 @@ void runAndWait()
   nextStepperFlag = 0;
 }
 
-int countSteppes(int whichMotor, int desiredPos)
+long countSteppes(int whichMotor, int desiredPos)
 {
-  int steppsToDo=(steppers[whichMotor].currentPosition-desiredPos);
+  Serial.println("Desired pos");
+  Serial.println(desiredPos);
+  long steppsToDo=(desiredPos-steppers[whichMotor].currentPosition);
+  Serial.println(steppsToDo);
   steppsToDo*=steppers[whichMotor].steps_per_deg;
+  Serial.println(whichMotor);
+  Serial.println(steppsToDo);
+  Serial.println("^^^Angle ^^Axis number ^steps number");
   return steppsToDo;
 }
 
@@ -348,10 +362,11 @@ bool checkDeg(int axis, int deg)
 
 bool checkPos(int axis, int pos)
 {
-  if(pos>=0 && pos<=steppers[axis].degrees) return true;
+  if(pos>=0 && pos<=360) return true;
+  Serial.println("CHECK POS OK");
   return false;
 }
-
+//???
 void mov0(int axis, int deg)
 {
   if (checkDeg(axis, deg))
@@ -360,12 +375,16 @@ void mov0(int axis, int deg)
     runAndWait();
   }
 }
-
+//working
 void mov1(int axis, int pos)
 {
   if (checkPos(axis, pos))
   {
-    prepareMovement(axis, countSteppes(axis, pos));
+    long numOfStepps=countSteppes(axis, pos);
+    Serial.println("Moving on pos");
+    Serial.println(numOfStepps);
+    prepareMovement(axis,numOfStepps );
+    steppers[axis].currentPosition=pos;
     runAndWait();
   }
 }
