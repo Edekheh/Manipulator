@@ -52,6 +52,10 @@ int interpreter(char input[]){
       procedureG2(tokens);
     else if(!strcmp(tokens[0],"G3"))
       procedureG3(tokens);
+    else if(!strcmp(tokens[0],"G4"))
+      procedureG3(tokens);
+    else if(!strcmp(tokens[0],"G5"))
+      procedureG3(tokens);
     else if(!strcmp(tokens[0],"G10"))
       procedureG10(tokens);
     else if(!strcmp(tokens[0],"G11"))

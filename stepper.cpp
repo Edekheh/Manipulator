@@ -126,7 +126,7 @@ void initializeSteppers()
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
-  steppers[0].steps_per_deg = (3200 * 1) / 180;
+  steppers[0].steps_per_deg = (3200 * 1) / 60;
   steppers[0].currentPosition=90;
 
   steppers[1].dirFunc = yDir;
@@ -140,7 +140,7 @@ void initializeSteppers()
   steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
-  steppers[2].steps_per_deg = (3200 * 1) / 180;
+  steppers[2].steps_per_deg = (3200 * 1) / 30;
   steppers[2].currentPosition=90;
 
   steppers[3].dirFunc = aDir;
@@ -155,7 +155,7 @@ void initializeSteppers()
   steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
-  steppers[4].steps_per_deg = (3200 * 1) / 180;
+  steppers[4].steps_per_deg = (3200 * 1) / 60;
   steppers[4].currentPosition=90;
 }
 
