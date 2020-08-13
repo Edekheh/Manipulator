@@ -1,4 +1,4 @@
 //#include <Servo.h>
-void movServo(int deg);
+void openServoG10();
+void closeServoG11();
 void InitializeServos();
-int translateServoDeg(int deg);

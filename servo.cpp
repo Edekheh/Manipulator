@@ -1,36 +1,26 @@
-#include "servo.h"
 #include "pins.h"
 //Servo Servo1;
 
 void InitializeServos() {
-    //Servo1.attach(SERVO1_PIN);
+    pinMode(SERVO1_PIN,OUTPUT);
 }
 
-int translateServoDeg(int deg) {
-    int finalValue;
-    if(deg<90)  {
-        finalValue=82;
+void openServoG10()  {
+    unsigned long startMilSec=millis();
+    unsigned long currentMilSec;
+    while(startMilSec+800<currentMilSec)    {
+        currentMilSec=millis();
+        digitalWrite(SERVO1_PIN,HIGH);
+        delayMicroseconds(1750);
     }
-    else if(deg>90) {
-        finalValue=96;
-    }
-    else    {
-        finalValue=89;
-    }
-    return finalValue;
 }
 
-void movServo(int deg)    {
-int finalDeg=translateServoDeg(deg);    
-unsigned long startMilSec = millis();
-//Serial.println(startMilSec);
-//Serial.println(millis());
-unsigned long currentMilSec;
-while(1)    {
-    currentMilSec=millis();
-    if(startMilSec+1000<currentMilSec) break;
-    //Servo1.write(finalDeg);
-}
-//Servo1.write(89);
-//Serial.println(millis());
+void closeServoG11()  {
+    unsigned long startMilSec=millis();
+    unsigned long currentMilSec;
+    while(startMilSec+800<currentMilSec)    {
+        currentMilSec=millis();
+        digitalWrite(SERVO1_PIN,HIGH);
+        delayMicroseconds(1250);
+    }
 }

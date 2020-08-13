@@ -27,10 +27,10 @@ void procedureM0(char **commands){
     changeValues(axis,parameter,value);
 }
 void printMovingProcedure(int axis,int pos)  {
-    Serial.println("Moving Axis ");
+    Serial.print("Moving Axis ");
     Serial.print(axis);
     Serial.print(" on pos ");
-    Serial.print(pos);
+    Serial.println(pos);
 }
 void procedureG1(char **commands){
     char *temp = commands[1];
@@ -109,12 +109,8 @@ void procedureG5(char **commands){
     //mov5(axis1,pos1,axis2,pos2,axis3,pos3,axis4,pos4,axis5,pos5);
 }
 void procedureG10(char **commands)  {
-    int deg = atoi(commands[2]);
-    Serial.println(deg);
-    movServo(deg);
+    openServoG10();
 }
 void procedureG11(char **commands)  {
-    int deg = atoi(commands[2]);
-    Serial.println(deg);
-    movServo(deg);
+    closeServoG11();
 }

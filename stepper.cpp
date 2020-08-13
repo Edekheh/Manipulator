@@ -9,6 +9,7 @@ struct stepperInfo
   float acceleration;
   unsigned long steps_per_deg;
   int currentPosition = 0;
+  short maxAngle=180;
   volatile unsigned long minStepInterval; // ie. max speed, smaller is faster
   void (*dirFunc)(int);
   void (*stepFunc)();
@@ -98,7 +99,7 @@ void bDir(int dir)
   digitalWrite(B_DIR_PIN, dir);
 }
 void changeValues(int axis,int parameter,int value)  {
-    Serial.println("Axis nr : ");
+    Serial.print("Axis nr : ");
     Serial.print(axis);
     Serial.print(" new");
     if(parameter==0)  {
@@ -116,7 +117,7 @@ steppers[axis].steps_per_deg=value;
       Serial.print(" steps per degree = ");
     }
       
-Serial.print(value);
+Serial.println(value);
   
 }
 void initializeSteppers()
@@ -126,30 +127,36 @@ void initializeSteppers()
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
   steppers[0].steps_per_deg = (3200 * 1) / 180;
+  steppers[0].currentPosition=90;
 
   steppers[1].dirFunc = yDir;
   steppers[1].stepFunc = yStep;
   steppers[1].acceleration = 1000;
   steppers[1].minStepInterval = 10;
   steppers[1].steps_per_deg = (12800) / 60;
+  steppers[1].currentPosition=90;
 
   steppers[2].dirFunc = zDir;
   steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
   steppers[2].steps_per_deg = (3200 * 1) / 180;
+  steppers[2].currentPosition=90;
 
   steppers[3].dirFunc = aDir;
   steppers[3].stepFunc = aStep;
   steppers[3].acceleration = 1000;
   steppers[3].minStepInterval = 50;
   steppers[3].steps_per_deg = (3200 * 1) / 360;
+  steppers[3].currentPosition=180;
+  steppers[3].maxAngle=360;
 
   steppers[4].dirFunc = bDir;
   steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
   steppers[4].steps_per_deg = (3200 * 1) / 180;
+  steppers[4].currentPosition=90;
 }
 
 void resetStepper(volatile stepperInfo &si)
@@ -342,9 +349,9 @@ void runAndWait()
   nextStepperFlag = 0;
 }
 
-long countSteppes(int whichMotor, int desiredPos)
+long countAbsoluteSteppes(int whichMotor, int desiredPos)
 {
-  Serial.println("Desired pos");
+  Serial.print("Desired pos");
   Serial.println(desiredPos);
   long steppsToDo=(desiredPos-steppers[whichMotor].currentPosition);
   Serial.println(steppsToDo);
@@ -354,38 +361,62 @@ long countSteppes(int whichMotor, int desiredPos)
   Serial.println("^^^Angle ^^Axis number ^steps number");
   return steppsToDo;
 }
+long countIncrementalSteppes(int whichMotor,int desiredDeg)  {
+  Serial.print("Moving ");
+  Serial.print(whichMotor);
+  Serial.print(" axis for ");
+  Serial.print(desiredDeg);
+  Serial.println("degrees");
+  long steppsToDo=(desiredDeg);
+  steppsToDo*=steppers[whichMotor].steps_per_deg;
+  steppers[whichMotor].currentPosition+=desiredDeg;
+  Serial.print("After ");
+  Serial.print(steppsToDo);
+  Serial.print(" steppes axis ");
+  Serial.print(whichMotor);
+  Serial.print(" new position is");
+  Serial.println(steppers[whichMotor].currentPosition);
+  return steppsToDo;
+}
 
 bool checkDeg(int axis, int deg)
 {
-  //TODO
+  if(steppers[axis].currentPosition+deg>=0 && steppers[axis].currentPosition+deg<=steppers[axis].maxAngle)  {
+    Serial.println("DEG OK");
+    return true;
+    }
+  return false;
 }
 
 bool checkPos(int axis, int pos)
 {
-  if(pos>=0 && pos<=360) return true;
+  if(pos>=0 && pos<=steppers[axis].maxAngle)  {
   Serial.println("CHECK POS OK");
+  return true;
+  } 
   return false;
 }
-//???
+//incremental move
 void mov0(int axis, int deg)
 {
   if (checkDeg(axis, deg))
   {
-    prepareMovement(axis, countSteppes(axis, deg));
+    prepareMovement(axis, countIncrementalSteppes(axis, deg));
+    steppers[axis].currentPosition+=deg;
     runAndWait();
   }
 }
+
+//absolute move
 //working
 void mov1(int axis, int pos)
 {
   if (checkPos(axis, pos))
   {
-    long numOfStepps=countSteppes(axis, pos);
-    Serial.println("Moving on pos");
-    Serial.println(numOfStepps);
+    long numOfStepps=countAbsoluteSteppes(axis, pos);
     prepareMovement(axis,numOfStepps );
-    steppers[axis].currentPosition=pos;
     runAndWait();
+    steppers[axis].currentPosition=pos;
   }
 }
 
@@ -393,9 +424,11 @@ void mov2(int axis1, int pos1, int axis2, int pos2)
 {
   if (checkPos(axis1, pos1) && checkPos(axis2, pos2))
   {
-    prepareMovement(axis1, countSteppes(axis1, pos1));
-    prepareMovement(axis2, countSteppes(axis2, pos2));
+    prepareMovement(axis1, countAbsoluteSteppes(axis1, pos1));
+    prepareMovement(axis2, countAbsoluteSteppes(axis2, pos2));
     runAndWait();
+    steppers[axis1].currentPosition=pos1;
+    steppers[axis2].currentPosition=pos2;
   }
 }
 
@@ -403,20 +436,27 @@ void mov3(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3)
 {
   if (checkPos(axis1, pos1) && checkPos(axis2, pos2) && checkPos(axis3, pos3) )
     {
-      prepareMovement(axis1, countSteppes(axis1, pos1));
-      prepareMovement(axis2, countSteppes(axis2, pos2));
-      prepareMovement(axis3, countSteppes(axis3, pos3));
+      prepareMovement(axis1, countAbsoluteSteppes(axis1, pos1));
+      prepareMovement(axis2, countAbsoluteSteppes(axis2, pos2));
+      prepareMovement(axis3, countAbsoluteSteppes(axis3, pos3));
       runAndWait();
+      steppers[axis1].currentPosition=pos1;
+      steppers[axis2].currentPosition=pos2;
+      steppers[axis3].currentPosition=pos3;
     }
 }
 void mov4(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3,int axis4, int pos4)
 {
   if (checkPos(axis1, pos1) && checkPos(axis2, pos2) && checkPos(axis3, pos3) && checkPos(axis4, pos4 ))
     {
-      prepareMovement(axis1, countSteppes(axis1, pos1));
-      prepareMovement(axis2, countSteppes(axis2, pos2));
-      prepareMovement(axis3, countSteppes(axis3, pos3));
-      prepareMovement(axis4, countSteppes(axis3, pos4));
+      prepareMovement(axis1, countAbsoluteSteppes(axis1, pos1));
+      prepareMovement(axis2, countAbsoluteSteppes(axis2, pos2));
+      prepareMovement(axis3, countAbsoluteSteppes(axis3, pos3));
+      prepareMovement(axis4, countAbsoluteSteppes(axis3, pos4));
       runAndWait();
+      steppers[axis1].currentPosition=pos1;
+      steppers[axis2].currentPosition=pos2;
+      steppers[axis3].currentPosition=pos3;
+      steppers[axis4].currentPosition=pos4;
     }
 }
