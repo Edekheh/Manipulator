@@ -42,18 +42,39 @@ int interpreter(char input[]){
     Serial.println(tokens[3]);
     Serial.println(tokens[4]);
 */
+  Serial.println(tokens[0]);
+  Serial.println(tokens[1]);
+  Serial.println(tokens[2]);
     if(tokens==NULL)
       return -2;
     if(!strcmp(tokens[0],"G0"))
       procedureG0(tokens);
     else if(!strcmp(tokens[0],"G1"))
       procedureG1(tokens);
-    else if(!strcmp(tokens[0],"G2"))
-      procedureG2(tokens);
-    else if(!strcmp(tokens[0],"G3"))
-      procedureG3(tokens);
-    else if(!strcmp(tokens[0],"G4"))
-      procedureG3(tokens);
+    else if(!strcmp(tokens[0],"G2"))  {
+      Serial.println(tokens[3]);
+  Serial.println(tokens[4]);
+    procedureG2(tokens);
+    }
+      
+    else if(!strcmp(tokens[0],"G3"))  {
+      Serial.println(tokens[3]);
+  Serial.println(tokens[4]);
+  Serial.println(tokens[5]);
+  Serial.println(tokens[6]);
+  procedureG3(tokens);
+    }
+      
+    else if(!strcmp(tokens[0],"G4"))  {
+       Serial.println(tokens[3]);
+  Serial.println(tokens[4]);
+  Serial.println(tokens[5]);
+  Serial.println(tokens[6]);
+   Serial.println(tokens[7]);
+  Serial.println(tokens[8]);
+    procedureG3(tokens);
+    }
+      
     else if(!strcmp(tokens[0],"G5"))
       procedureG3(tokens);
     else if(!strcmp(tokens[0],"G10"))
@@ -64,10 +85,6 @@ int interpreter(char input[]){
       procedureInitialize();
     else if(!strcmp(tokens[0],"M0"))  
       procedureM0(tokens);
-    else{
-      free(tokens);
-      return -1;
-    }
     free(tokens);
     return 0;
 }
