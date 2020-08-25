@@ -34,14 +34,6 @@ int interpreter(char input[]){
     
     char **tokens;
     tokens=parse(input);
-/*
-    
-    Serial.println(tokens[0]);
-    Serial.println(tokens[1]);
-    Serial.println(tokens[2]);
-    Serial.println(tokens[3]);
-    Serial.println(tokens[4]);
-*/
   Serial.println(tokens[0]);
   Serial.println(tokens[1]);
   Serial.println(tokens[2]);

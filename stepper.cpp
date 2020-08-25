@@ -103,7 +103,8 @@ void changeValues(int axis,int parameter,int value)  {
     Serial.print(axis);
     Serial.print(" new");
     if(parameter==0)  {
-steppers[axis].acceleration=value;
+      steppers[axis].acceleration=value;
+      //EEPROM.update(&steppers[axis].acceleration,value);
       Serial.print(" acceleration = ");
     }
       
@@ -359,6 +360,7 @@ long countAbsoluteSteppes(int whichMotor, int desiredPos)
   Serial.println(whichMotor);
   Serial.println(steppsToDo);
   Serial.println("^^^Angle ^^Axis number ^steps number");
+  if(steppsToDo==0)steppsToDo=48;
   return steppsToDo;
 }
 long countIncrementalSteppes(int whichMotor,int desiredDeg)  {
@@ -376,6 +378,7 @@ long countIncrementalSteppes(int whichMotor,int desiredDeg)  {
   Serial.print(whichMotor);
   Serial.print(" new position is");
   Serial.println(steppers[whichMotor].currentPosition);
+  if(steppsToDo==0)steppsToDo=48;
   return steppsToDo;
 }
 
