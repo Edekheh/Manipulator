@@ -106,7 +106,7 @@ void procedureG5(char **commands){
     printMovingProcedure(axis3,pos3);
     printMovingProcedure(axis4,pos4);
     printMovingProcedure(axis5,pos5);
-    //mov5(axis1,pos1,axis2,pos2,axis3,pos3,axis4,pos4,axis5,pos5);
+    mov5(axis1,pos1,axis2,pos2,axis3,pos3,axis4,pos4,axis5,pos5);
 }
 void procedureG10(char **commands)  {
     openServoG10();

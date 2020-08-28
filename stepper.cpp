@@ -127,8 +127,9 @@ void initializeSteppers()
   steppers[0].stepFunc = xStep;
   steppers[0].acceleration = 1000;
   steppers[0].minStepInterval = 50;
-  steppers[0].steps_per_deg = (3200 * 1) / 60;
+  steppers[0].steps_per_deg = (3200 * 1.4) / 60;
   steppers[0].currentPosition=90;
+  steppers[0].maxAngle=210;
 
   steppers[1].dirFunc = yDir;
   steppers[1].stepFunc = yStep;
@@ -148,7 +149,7 @@ void initializeSteppers()
   steppers[3].stepFunc = aStep;
   steppers[3].acceleration = 1000;
   steppers[3].minStepInterval = 50;
-  steppers[3].steps_per_deg = (3200 * 1) / 360;
+  steppers[3].steps_per_deg = ((3200 * 1) / 360)*1.2;
   steppers[3].currentPosition=180;
   steppers[3].maxAngle=360;
 
@@ -156,7 +157,7 @@ void initializeSteppers()
   steppers[4].stepFunc = bStep;
   steppers[4].acceleration = 1000;
   steppers[4].minStepInterval = 50;
-  steppers[4].steps_per_deg = (3200 * 1) / 60;
+  steppers[4].steps_per_deg = (3200 * 1) / 90;
   steppers[4].currentPosition=90;
 }
 
@@ -455,11 +456,30 @@ void mov4(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3,int axis
       prepareMovement(axis1, countAbsoluteSteppes(axis1, pos1));
       prepareMovement(axis2, countAbsoluteSteppes(axis2, pos2));
       prepareMovement(axis3, countAbsoluteSteppes(axis3, pos3));
-      prepareMovement(axis4, countAbsoluteSteppes(axis3, pos4));
+      prepareMovement(axis4, countAbsoluteSteppes(axis4, pos4));
       runAndWait();
       steppers[axis1].currentPosition=pos1;
       steppers[axis2].currentPosition=pos2;
       steppers[axis3].currentPosition=pos3;
       steppers[axis4].currentPosition=pos4;
+    }
+}
+
+
+void mov5(int axis1, int pos1, int axis2, int pos2, int axis3, int pos3,int axis4, int pos4,int axis5, int pos5)
+{
+  if (checkPos(axis1, pos1) && checkPos(axis2, pos2) && checkPos(axis3, pos3) && checkPos(axis4, pos4 ) && checkPos(axis5,pos5))
+    {
+      prepareMovement(axis1, countAbsoluteSteppes(axis1, pos1));
+      prepareMovement(axis2, countAbsoluteSteppes(axis2, pos2));
+      prepareMovement(axis3, countAbsoluteSteppes(axis3, pos3));
+      prepareMovement(axis4, countAbsoluteSteppes(axis4, pos4));
+      prepareMovement(axis5, countAbsoluteSteppes(axis5, pos5));
+      runAndWait();
+      steppers[axis1].currentPosition=pos1;
+      steppers[axis2].currentPosition=pos2;
+      steppers[axis3].currentPosition=pos3;
+      steppers[axis4].currentPosition=pos4;
+      steppers[axis5].currentPosition=pos5;
     }
 }
