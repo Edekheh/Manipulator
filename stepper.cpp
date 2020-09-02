@@ -142,7 +142,7 @@ void initializeSteppers()
   steppers[2].stepFunc = zStep;
   steppers[2].acceleration = 1000;
   steppers[2].minStepInterval = 50;
-  steppers[2].steps_per_deg = (3200 * 1) / 30;
+  steppers[2].steps_per_deg = (3200 * 1) / 20;
   steppers[2].currentPosition=90;
 
   steppers[3].dirFunc = aDir;

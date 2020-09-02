@@ -83,7 +83,6 @@ void procedureG4(char **commands){
     printMovingProcedure(axis3,pos3);
     printMovingProcedure(axis4,pos4);
 mov4(axis1,pos1,axis2,pos2,axis3,pos3,axis4,pos4);
-
 }
 void procedureG5(char **commands){
     char *temp = commands[1];

@@ -1,47 +1,46 @@
 #include "pins.h"
-//#include <Servo.h> 
+#include <Servo.h>
 
-//Servo myservo;
+Servo servo1;
 
-void InitializeServos() {
-    pinMode(SERVO1_PIN,OUTPUT);
-    //myservo.attach(SERVO1_PIN);
+void InitializeServos()
+{
+    //pinMode(SERVO1_PIN, OUTPUT);
+    servo1.attach(SERVO1_PIN);
 }
-int lenMicroSecondsOfPeriod = 25 * 1000;       // 25 milliseconds (ms). found much better smoothness at 25, not 20 ms.
-               // used in the while loop below
-int lenMicroSecondsOfPulseStart = 0.5 * 1000;  // 0 degrees
-int lenMicroSecondsOfPulseEnd = 2.5 * 1000;    // 180 degrees
-int lenMicroSecondsOfPulseStep = 0.01 * 1000;
-int lenMicroSecondsOfPulse ; 
-void openServoG10()  {
+void closeServoG11()
+{
 
-lenMicroSecondsOfPulse=lenMicroSecondsOfPulseStart + lenMicroSecondsOfPulseStep;
-unsigned long startMilSec=millis();
-    unsigned long currentMilSec;
- while (lenMicroSecondsOfPulse = lenMicroSecondsOfPulseStart)
- {
-     currentMilSec=millis();
-     if(startMilSec+600<currentMilSec) break;
-   digitalWrite(SERVO1_PIN, HIGH);
-   delayMicroseconds(lenMicroSecondsOfPulse);
-   digitalWrite(SERVO1_PIN, LOW);
-   delayMicroseconds(lenMicroSecondsOfPeriod - lenMicroSecondsOfPulse); 
-   lenMicroSecondsOfPulse += lenMicroSecondsOfPulseStep;
- }
+    //unsigned int l = 1600;
+    //unsigned int fl = 20000;
+    unsigned long startMilSec = millis();
+    unsigned long currentMilSec=millis();
+    while (startMilSec + 400 > currentMilSec)
+    {
+        servo1.write(95);
+        currentMilSec = millis();
+        /*digitalWrite(SERVO1_PIN, HIGH);
+         delayMicroseconds(l);
+        digitalWrite(SERVO1_PIN, LOW);
+        delay(18);
+        delayMicroseconds(400);*/
+    }
 }
 
-void closeServoG11()  {
-lenMicroSecondsOfPulse=lenMicroSecondsOfPulseEnd + lenMicroSecondsOfPulseStep;
-unsigned long startMilSec=millis();
-    unsigned long currentMilSec;
- while (lenMicroSecondsOfPulse = lenMicroSecondsOfPulseStart)
- {
-     currentMilSec=millis();
-     if(startMilSec+600<currentMilSec) break;
-   digitalWrite(SERVO1_PIN, HIGH);
-   delayMicroseconds(lenMicroSecondsOfPulse);
-   digitalWrite(SERVO1_PIN, LOW);
-   delayMicroseconds(lenMicroSecondsOfPeriod - lenMicroSecondsOfPulse); 
-   lenMicroSecondsOfPulse += lenMicroSecondsOfPulseStep;
- }
+void openServoG10()
+{
+    unsigned int l = 1200;
+    unsigned int fl = 20000;
+    unsigned long startMilSec = millis();
+    unsigned long currentMilSec=millis();
+    while (startMilSec + 400 > currentMilSec)
+    {
+        servo1.write(85);
+        currentMilSec = millis();
+        /*digitalWrite(SERVO1_PIN, HIGH);
+        delayMicroseconds(l);
+        digitalWrite(SERVO1_PIN, LOW);
+        delay(18);
+        delayMicroseconds(900);*/
+    }
 }
