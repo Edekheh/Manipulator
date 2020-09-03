@@ -9,6 +9,6 @@ void procedureG2(char **commands);
 void procedureG3(char **commands);
 void procedureG4(char **commands);
 void procedureG5(char **commands);
-void procedureG10(char **commands);
-void procedureG11(char **commands);
+void procedureG10();
+void procedureG11();
 void procedureM0(char **commands);

@@ -37,7 +37,7 @@ int interpreter(char input[]){
   Serial.println(tokens[0]);
     if(tokens==NULL)
       return -2;
-    if(!strcmp(tokens[0],"G0"))
+    else if(!strcmp(tokens[0],"G0"))
       procedureG0(tokens);
     else if(!strcmp(tokens[0],"G1"))
       procedureG1(tokens);
@@ -56,9 +56,9 @@ int interpreter(char input[]){
     else if(!strcmp(tokens[0],"G5"))
       procedureG3(tokens);
     else if(!strcmp(tokens[0],"G10"))
-      procedureG10(tokens);
+      procedureG10();
     else if(!strcmp(tokens[0],"G11"))
-      procedureG11(tokens);
+      procedureG11();
     else if(!strcmp(tokens[0],"INIT"))  
       procedureInitialize();
     else if(!strcmp(tokens[0],"M0"))  

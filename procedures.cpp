@@ -107,9 +107,9 @@ void procedureG5(char **commands){
     printMovingProcedure(axis5,pos5);
     mov5(axis1,pos1,axis2,pos2,axis3,pos3,axis4,pos4,axis5,pos5);
 }
-void procedureG10(char **commands)  {
+void procedureG10()  {
     openServoG10();
 }
-void procedureG11(char **commands)  {
+void procedureG11()  {
     closeServoG11();
 }

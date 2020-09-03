@@ -1,9 +1,8 @@
-#include "interpreter.h"
+
 #include "pins.h"
 #include <Arduino.h>
-#include <stdlib.h>
 #include "menu.h"
-String strInput=0;
+String strInput="";
 void(*menuFunc)(int);
 void setup() {
  InitializeALL();
@@ -14,9 +13,9 @@ void loop() {
   strInput=Serial.readString();
   }
 if(strInput.length()!=0) {
-  int temp = strInput[0]-65;
+  int temp = strInput[0]-48;
   menuFunc(temp);
-  strInput=0;
+  strInput="";
 }
 /*if(strInput.length()>2) {
 char *input = new char[40];

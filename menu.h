@@ -1,3 +1,5 @@
+#include "interpreter.h"
+#include <stdlib.h>
 void mainMenu(int i);
 void menu1(int i);
 void menu2(int i);
