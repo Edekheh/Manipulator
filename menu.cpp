@@ -26,18 +26,34 @@ void menu1(int i)
     Serial.println("Moving by commands ! ");
     Serial.println("Type 'exit' to back");
     String str;
+    String tab[20];
+    unsigned int i=0;
     while (1)
     {
         while (Serial.available()>0)
         {
             str = Serial.readString();
         }
-        if (str.length() > 2)
+        if(str.equals("ROUTE")) {
+            for(int j=0;j<20;j++)   {
+                char *input = new char[40];
+                tab[j].toCharArray(input, tab[j].length());
+                Serial.println(tab[j]);
+                if(interpreter(input)==-1)  {
+                    Serial.println("Invalid command");
+                }
+                tab[j]="";
+            }
+
+        }
+        else if (str.length() > 3)
         {
             
             char *input = new char[40];
             str.toCharArray(input, str.length());
             Serial.println(str);
+            tab[i]=str;
+            i++;
             if(str.equals("exit")) break;
             if (interpreter(input) == -1)
                 Serial.println("Null error or invalid command");
@@ -57,9 +73,10 @@ void menu2(int i)
     while (1)
     {
         
-        while (Serial.available() > 0)
+        if (Serial.available() > 0)
         {
             a = Serial.read();
+            Serial.println(a);
         }
         if(a=='`') break;
         else if (a != 'x')
@@ -75,7 +92,7 @@ void menu2(int i)
                 //deg control mode
                 while (1)
                 {
-                    while (Serial.available() > 0)
+                    if (Serial.available() > 0)
                     {
                         a = Serial.read();
                     }
