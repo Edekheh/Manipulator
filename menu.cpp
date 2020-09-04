@@ -27,7 +27,7 @@ void menu1(int i)
     Serial.println("Type 'exit' to back");
     String str;
     String tab[20];
-    unsigned int i=0;
+    unsigned int k=0;
     while (1)
     {
         while (Serial.available()>0)
@@ -35,7 +35,7 @@ void menu1(int i)
             str = Serial.readString();
         }
         if(str.equals("ROUTE")) {
-            for(int j=0;j<20;j++)   {
+            for(int j=0;j<k;j++)   {
                 char *input = new char[40];
                 tab[j].toCharArray(input, tab[j].length());
                 Serial.println(tab[j]);
@@ -44,6 +44,7 @@ void menu1(int i)
                 }
                 tab[j]="";
             }
+            k=0;
 
         }
         else if (str.length() > 3)
@@ -52,8 +53,8 @@ void menu1(int i)
             char *input = new char[40];
             str.toCharArray(input, str.length());
             Serial.println(str);
-            tab[i]=str;
-            i++;
+            tab[k]=str;
+            k++;
             if(str.equals("exit")) break;
             if (interpreter(input) == -1)
                 Serial.println("Null error or invalid command");
