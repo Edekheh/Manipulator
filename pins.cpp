@@ -30,7 +30,7 @@ void definePinMode() {
   pinMode(Z_MAX_PIN,INPUT);
 
   noInterrupts();
-  TCCR1A = 0;
+  TCCR1A = 0;// changing register's time to 0
   TCCR1B = 0;
   TCNT1  = 0;
 

@@ -258,7 +258,7 @@ void setNextInterruptInterval()
 
 ISR(TIMER1_COMPA_vect)
 {
-  unsigned int tmpCtr = OCR1A;
+  unsigned int tmpCtr = OCR1A; 
 
   OCR1A = 65500;
 

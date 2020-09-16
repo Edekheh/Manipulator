@@ -1,3 +1,4 @@
+#pragma once
 #include <Arduino.h>
 void definePinMode();
 #define NUM_STEPPERS 6

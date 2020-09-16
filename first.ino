@@ -1,9 +1,10 @@
-
 #include "pins.h"
 #include <Arduino.h>
 #include "menu.h"
+
 String strInput="";
 void(*menuFunc)(int);
+
 void setup() {
  InitializeALL();
 }
@@ -18,7 +19,7 @@ if(strInput.length()!=0) {
   strInput="";
 }
 /*if(strInput.length()>2) {
-char *input = new char[40];
+ 
   strInput.toCharArray(input,strInput.length());
   Serial.println(strInput);
   if(interpreter(input)==-1)
